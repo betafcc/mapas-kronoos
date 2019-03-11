@@ -1,15 +1,13 @@
 NAMES := regioes ufs regioes_intermediarias regioes_imediatas municipios
-EXTENSIONS := csv json xlsx
-MIN_FOLDER := min
+EXTENSIONS := csv
 TABELAS := $(foreach ext,$(EXTENSIONS),municipios.$(ext))
-TABELAS_MIN := $(foreach ext,$(EXTENSIONS),$(foreach name,$(NAMES),$(MIN_FOLDER)/$(name).$(ext)))
 
 
-tabelas: $(TABELAS) $(TABELAS_MIN)
+tabelas: $(TABELAS)
 .PHONY: tabelas
 
 
-$(TABELAS) $(TABELAS_MIN): .tabelas-sentinel
+$(TABELAS): .tabelas-sentinel
 .SECONDARY: .tabelas-sentinel
 .tabelas-sentinel: tabelas-municipios-brasileiros.ipynb
 	pipenv run jupyter nbconvert \
