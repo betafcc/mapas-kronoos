@@ -11,23 +11,25 @@ all: $(filter %.shp,$(RAW_MAP_FILES)) $(filter %.csv,$(TABELAS))
 .PHONY: all
 
 
-municipios.geo.json: $(filter %.shp,$(RAW_MAP_FILES)) $(filter %.csv,$(TABELAS))
+municipios.topo.json: $(filter %.shp,$(RAW_MAP_FILES)) $(filter %.csv,$(TABELAS))
 	mapshaper -i $< snap \
 		-rename-layers municipios \
 		-rename-fields codigo_municipio=geocodigo \
 		-filter-fields codigo_municipio \
 		-simplify visvalingam 4% -filter-islands min-area=1e8 \
 		-join $(word 2,$^) keys=codigo_municipio,codigo_municipio \
-		-o force format=geojson id-field=codigo_municipio $@
+		-o force format=topojson id-field=codigo_municipio $@
 
 
-ufs.geo.json: municipios.geo.json
+ufs.topo.json: municipios.topo.json
 	mapshaper -i $< \
+		-rename-layers ufs \
 		-dissolve2 sigla_uf copy-fields=sigla_uf \
-		-simplify visvalingam 9% \
-		-o force id-field=sigla_uf $@ \
+		-simplify visvalingam 9% -filter-islands min-area=1e9 \
+		-o force format=topojson id-field=sigla_uf $@ \
 	&& mapshaper -i $@ \
-		-filter-fields FID -o force $@
+		-filter-fields FID \
+		-o force format=topojson $@
 
 
 
